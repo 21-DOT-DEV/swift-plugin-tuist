@@ -1,5 +1,5 @@
 //
-//  TemplatePlugin.swift
+//  TuistPlugin.swift
 //  GigaBitcoin/template-plugin
 //
 //  Copyright (c) 2023 GigaBitcoin LLC
@@ -12,12 +12,12 @@ import Foundation
 import PackagePlugin
 
 @main
-struct TemplatePlugin: CommandPlugin {
+struct TuistPlugin: CommandPlugin {
     func performCommand(
         context: PackagePlugin.PluginContext,
         arguments: [String]
     ) async throws {
-        let binary = try context.tool(named: "template")
+        let binary = try context.tool(named: "tuist")
         let process = Process()
 
         process.executableURL = URL(filePath: binary.path.string)
@@ -29,7 +29,7 @@ struct TemplatePlugin: CommandPlugin {
         // Check whether the `template` invocation was successful.
         guard process.terminationReason == .exit && process.terminationStatus == 0 else {
             Diagnostics.error("""
-                'template' invocation failed with a nonzero exit code: '\(process.terminationStatus)'.
+                'tuist' invocation failed with a nonzero exit code: '\(process.terminationStatus)'.
 
                 See 'swift package plugin template --help' for details.
                 """

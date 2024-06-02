@@ -3,32 +3,31 @@
 import PackageDescription
 
 let package = Package(
-    name: "template",
+    name: "Tuist",
     products: [
         .plugin(
-            name: "template",
+            name: "tuist",
             targets: [
-                "TemplatePlugin"
+                "TuistPlugin"
             ]
         )
     ],
     dependencies: [],
     targets: [
         .plugin(
-            name: "TemplatePlugin",
+            name: "TuistPlugin",
             capability: .command(
                 intent: .custom(
-                    verb: "template",
+                    verb: "tuist",
                     description: "Execute commands defined by template."
                 )
             ),
-            dependencies: ["template"]
+            dependencies: ["tuist"]
         ),
-//        .binaryTarget(name: "template", path: "template.artifactbundle.zip"),
         .binaryTarget(
-            name: "template",
-            url: "https://github.com/GigaBitcoin/template-plugin/releases/download/0.0.1/template.artifactbundle.zip",
-            checksum: "42e1e7a4f7d7586ec6d13b3e03cce5612ac237244cc3cb1e6de7c49416d04520"
+            name: "tuist",
+            url: "https://github.com/21-DOT-DEV/swift-plugin-tuist/releases/download/4.16.1/tuist.artifactbundle.zip",
+            checksum: "283ddb22c09f38ef8fd461cc15c9c115e8f63aa86cbd8e7e1e168bdcd637b64e"
         ),
     ],
     swiftLanguageVersions: [.v5]
