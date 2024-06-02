@@ -46,14 +46,13 @@ jobs:
       run: |
           gh release download ${{ inputs.binary_version }} \
                             -R "${{ inputs.binary_repo }}" \
-                            -p '*MacOS*64' \
-                            -p '*Linux*64' \
-                            -p '*Windows*64.exe' \
-                            -p '*.deb' \
-                            -p '*.rpm' \
-                            -D '${{ inputs.binary_name }}/Resources/template.artifactbundle'
+                            -p 'tuist.zip' \
+                            -D '${{ inputs.binary_name }}/Resources'
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Unzip Tuist
+      run: |
+          unzip '${{ inputs.binary_name }}/Resources/tuist.zip' tuist -d '${{ inputs.binary_name }}/Resources/template.artifactbundle'
     - name: Update GitHub Env Vars
       run: |
           # The example binary includes a leading 'v' in the release version number. We drop it on the next line.
@@ -67,11 +66,10 @@ jobs:
     - name: Add executable permissions
       run: |
           # The example binaries for MacOS need the executable permission added.
-          chmod +x "${{ env.ARTIFACT_PATH }}/${{ inputs.binary_name }}_${{ env.PLUGIN_VERSION }}_MacOS_arm64"
-          chmod +x "${{ env.ARTIFACT_PATH }}/${{ inputs.binary_name }}_${{ env.PLUGIN_VERSION }}_MacOS_x86_64"
+          chmod +x "${{ env.ARTIFACT_PATH }}/${{ inputs.binary_name }}"
     - name: Zip Artifact Bundle
       run: |
-          zip -9 -r ${{ env.ARTIFACT_NAME }} ${{ env.ARTIFACT_PATH }}
+          7z a -tzip -mx=9 ${{ env.ARTIFACT_NAME }} ${{ env.ARTIFACT_PATH }}
     - name: Reset Git Repo
       run: |
           (cd ${{ inputs.binary_name }} && git reset --hard)

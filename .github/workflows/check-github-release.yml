@@ -12,17 +12,17 @@ jobs:
     name: Check GitHub Release
     runs-on: macOS-13
     env:
-      BINARY_NAME: lefthook
-      BINARY_REPO: evilmartians/lefthook
-      PLUGIN_REPO: gigabitcoin/template-plugin
+      BINARY_NAME: tuist
+      BINARY_REPO: tuist/tuist
+      PLUGIN_REPO: 21-DOT-DEV/swift-plugin-tuist
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - name: Get lastest binary and plugin versions
       run: |
           SEMANTIC_VERSIONING_REGEX="(v[0-9]+\.[0-9]+\.[0-9]+)|(0\.[0-9]+\.[0-9]+)"
 
-          PLUGIN_RELEASE=$(gh release list -R gigabitcoin/template-plugin -L 1)
-          BINARY_RELEASE=$(gh release list -R evilmartians/lefthook -L 1)
+          PLUGIN_RELEASE=$(gh release list -R ${{ env.PLUGIN_REPO }} -L 1)
+          BINARY_RELEASE=$(gh release list -R ${{ env.BINARY_REPO }} -L 1)
 
           echo "PLUGIN_VERSION=$(echo $PLUGIN_RELEASE | grep -oE $SEMANTIC_VERSIONING_REGEX | head -n1)" >> $GITHUB_ENV
           echo "BINARY_VERSION=$(echo $BINARY_RELEASE | grep -oE $SEMANTIC_VERSIONING_REGEX | head -n1)" >> $GITHUB_ENV
