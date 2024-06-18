@@ -11,13 +11,6 @@ jobs:
     name: Test
     runs-on: macOS-13
     steps:
-    - uses: actions/checkout@v3
-    - name: List available plugins in macOS
-      run: swift package plugin template
-
-  Linux:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build Docker image
-      run: docker build .
+      - uses: actions/checkout@v4
+      - name: Display tuist commands in macOS
+        run: swift package tuist

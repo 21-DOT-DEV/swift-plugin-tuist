@@ -23,14 +23,14 @@ jobs:
       BINARY_VERSION: ${{ steps.two.outputs.BINARY_VERSION }}
       PLUGIN_VERSION: ${{ steps.one.outputs.PLUGIN_VERSION }}
     steps:
-    - name: Get current plugin version
-      id: one
-      run: |
+      - name: Get current plugin version
+        id: one
+        run: |
           PLUGIN_RELEASE=$(gh release list -R ${{ github.repository }} -L 1)
           echo "PLUGIN_VERSION=$(echo $PLUGIN_RELEASE | grep -oE "${{ env.SEMANTIC_VERSIONING_REGEX }}" | head -n1)" >> $GITHUB_OUTPUT
-    - name: Get current binary version
-      id: two
-      run: |
+      - name: Get current binary version
+        id: two
+        run: |
           BINARY_RELEASE=$(gh release list -R ${{ env.BINARY_REPO }} -L 1)
           echo "BINARY_VERSION=$(echo $BINARY_RELEASE | grep -oE "${{ env.SEMANTIC_VERSIONING_REGEX }}" | head -n1)" >> $GITHUB_OUTPUT
   debug:
@@ -38,8 +38,8 @@ jobs:
     needs: check
     runs-on: ubuntu-latest
     steps:
-    - name: Print outputs from check job
-      run: |
+      - name: Print outputs from check job
+        run: |
           echo "${{ needs.check.outputs.BINARY_NAME }}"
           echo "${{ needs.check.outputs.BINARY_REPO }}"
           echo "${{ needs.check.outputs.BINARY_VERSION }}"

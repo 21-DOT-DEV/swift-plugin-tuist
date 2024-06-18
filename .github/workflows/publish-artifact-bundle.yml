@@ -82,8 +82,8 @@ jobs:
           (cd ${{ inputs.binary_name }} && git commit -am "Updating ${{ inputs.binary_name }} to ${{ env.PLUGIN_VERSION }}" && git push origin)
     - name: Create GitHub Release
       run: |
-          echo $(cd ${{ inputs.binary_name }} && git rev-parse HEAD)
-          gh release create ${{ env.PLUGIN_VERSION }} \
-                     -R ${{ inputs.plugin_repo }} \
-                     --target $(cd ${{ inputs.binary_name }} && git rev-parse HEAD) \
-                     "${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }}"
+        echo $(cd ${{ inputs.binary_name }} && git rev-parse HEAD)
+        gh release create ${{ env.PLUGIN_VERSION }}    \
+                        -R ${{ inputs.plugin_repo }}   \
+            --target $(cd ${{ inputs.binary_name }} && git rev-parse HEAD) \
+            "${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }}"
