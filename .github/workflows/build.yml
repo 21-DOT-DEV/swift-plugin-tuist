@@ -13,4 +13,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Display tuist commands in macOS
-        run: swift package tuist
+        run: swift package --disable-sandbox tuist

@@ -1,7 +1,7 @@
 name: Check GitHub Release
 
-on: 
-  schedule: 
+on:
+  schedule:
     # Daily at 8:20 UTC
     - cron: '20 8,20 * * *'
   # Enables manually running this workflow from the Actions tab
@@ -17,11 +17,13 @@ jobs:
       PLUGIN_REPO: 21-DOT-DEV/swift-plugin-tuist
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SEMANTIC_VERSIONING_REGEX: (v?[0-9]+\.[0-9]+\.[0-9]+)
+      INVALID_BINARY_PREFIX: app
     outputs:
       BINARY_NAME: ${{ env.BINARY_NAME }}
       BINARY_REPO: ${{ env.BINARY_REPO }}
       BINARY_VERSION: ${{ steps.two.outputs.BINARY_VERSION }}
       PLUGIN_VERSION: ${{ steps.one.outputs.PLUGIN_VERSION }}
+      IS_VALID_BINARY_VERSION: ${{ steps.three.outputs.IS_VALID_BINARY_VERSION }}
     steps:
       - name: Get current plugin version
         id: one
@@ -33,6 +35,16 @@ jobs:
         run: |
           BINARY_RELEASE=$(gh release list -R ${{ env.BINARY_REPO }} -L 1)
           echo "BINARY_VERSION=$(echo $BINARY_RELEASE | grep -oE "${{ env.SEMANTIC_VERSIONING_REGEX }}" | head -n1)" >> $GITHUB_OUTPUT
+      - name: Validate binary version
+        id: three
+        run: |
+          BINARY_RELEASE=$(gh release list -R ${{ env.BINARY_REPO }} -L 1)
+          if [[ "$BINARY_RELEASE" == ${{ env.INVALID_BINARY_PREFIX }}* ]]; then
+            echo "IS_VALID_BINARY_VERSION=false" >> $GITHUB_OUTPUT
+          else
+            echo "IS_VALID_BINARY_VERSION=true" >> $GITHUB_OUTPUT
+          fi
+          echo "IS_VALID_BINARY_VERSION=$(cat $GITHUB_OUTPUT | grep IS_VALID_BINARY_VERSION | cut -d= -f2)"
   debug:
     name: Debug Outputs
     needs: check
@@ -45,6 +57,7 @@ jobs:
           echo "${{ needs.check.outputs.BINARY_VERSION }}"
           echo "${{ github.repository }}"
           echo "${{ needs.check.outputs.PLUGIN_VERSION }}"
+          echo "${{ needs.check.outputs.IS_VALID_BINARY_VERSION }}"
   trigger:
     name: Trigger Artifact Publish
     needs: check
@@ -54,4 +67,4 @@ jobs:
       binary_repo: ${{ needs.check.outputs.BINARY_REPO }}
       binary_version: ${{ needs.check.outputs.BINARY_VERSION }}
       plugin_repo: ${{ github.repository }}
-    if: ${{ needs.check.outputs.PLUGIN_VERSION != needs.check.outputs.BINARY_VERSION }}
+    if: ${{ needs.check.outputs.PLUGIN_VERSION != needs.check.outputs.BINARY_VERSION && needs.check.outputs.IS_VALID_BINARY_VERSION == 'true' }}
