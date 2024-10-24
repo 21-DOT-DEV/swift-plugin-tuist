@@ -1,66 +1,93 @@
-# Tuist Swift Plugin
+# swift-plugin-tuist
 
-## Overview
-
-Welcome to the Tuist Swift Plugin! This plugin is designed to seamlessly integrate and distribute [Tuist](https://github.com/tuist/tuist) within your Swift projects using the Swift Package Manager. With this plugin, you can easily manage and automate Xcode projects, making your development process smoother and more efficient.
+A Swift plugin that integrates [Tuist](https://github.com/tuist/tuist), a toolchain for managing and automating Xcode projects.
 
 ## Features
 
-- **Seamless Integration**: Integrates Tuist with Swift Package Manager for streamlined project setup.
-- **Automated Configuration**: Automatically configure Xcode projects using Tuist.
-- **Enhanced Project Management**: Leverage Tuist's powerful features directly from your Swift projects.
-- **Consistent Environment**: Ensure consistent project environments across different machines and team members.
+- **Seamless Integration**: Manage Xcode projects using Tuist directly through the Swift Package Manager.
+- **Automated Configuration**: Easily set up and manage your project structure with Tuist.
+- **Consistent Development Environment**: Ensure uniform project configuration across all team members.
+- **Custom Scripts and Modularization**: Utilize Tuist's custom scripts and modularization features to enhance your project workflows.
 
 ## Installation
 
-To install the Tuist Swift Plugin, follow these steps:
+### Using Swift Package Manager plugin
 
-1. **Add the Plugin to Your Package.swift**:
-   Add the Tuist plugin to your `Package.swift` file under the `dependencies` and `targets` sections:
-
-   ```swift
-   // swift-tools-version:5.5
-   import PackageDescription
-
-   let package = Package(
-       name: "MyProject",
-       products: [
-           .executable(name: "MyProject", targets: ["MyProject"]),
-       ],
-       dependencies: [
-           .package(url: "https://github.com/tuist/tuist.git", from: "1.0.0"),
-       ],
-       targets: [
-           .target(
-               name: "MyProject",
-               dependencies: [
-                   .product(name: "TuistPlugin", package: "tuist"),
-               ]
-           ),
-           .executableTarget(name: "MyProject", dependencies: ["TuistPlugin"]),
-       ]
-   )
-   ```
-
-2. **Run Swift Package Manager Command**:
-   ```sh
-   swift package resolve
-   ```
-
-3. **Verify Installation**:
-   Confirm the plugin is installed correctly by running:
-   ```sh
-   swift package show-dependencies
-   ```
-
-## Usage
-
-### Project Configuration
-
-To configure your project with Tuist, create a `tuist.swift` file in your project directory and add your Tuist configuration:
+To utilize the `swift-plugin-tuist`, include it in the target specification of your Swift Package:
 
 ```swift
-import TuistPlugin
+// swift-tools-version: 5.6
+import PackageDescription
+
+let package = Package(
+    name: "YourPackageName",
+    dependencies: [
+        .package(url: "https://github.com/21-DOT-DEV/swift-plugin-tuist.git", exact: "4.31.0"),
+    ],
+    targets: [
+        .executableTarget(name: "YourTargetName")
+    ]
+)
+```
+
+This configuration provides the minimum setup required to invoke tuist from the command line, enabling its integration into your manifest file.
+
+### Using [Mint](https://github.com/yonaskolb/Mint)
+
+```
+$ mint install 21-DOT-DEV/swift-plugin-tuist
+```
+
+## Commands
+
+After Tuist is [installed](#installation) in your Swift package, you can start using it.
+
+### Using Swift Package Manager plugin
+
+Invoke the plugin directly using the `swift package <PLUGIN>` command:
+
+```bash
+swift package tuist --help
+```
+
+Run `tuist generate` to generate an Xcode project from your Tuist configuration:
+
+```bash
+swift package --disable-sandbox tuist generate
+```
+
+> [!IMPORTANT]  
+> The Tuist plugin requires the `--disable-sandbox` flag with the Swift Package Manager due to its need for local document access.
+
+To run other Tuist commands within your package repository:
+
+```bash
+swift package --disable-sandbox tuist <command>
+```
+
+> [!NOTE]  
+> For a detailed understanding of Tuist commands and their usage, refer to [Tuist's official documentation](https://docs.tuist.io/en/cli/auth).
+
+### Using `mint`
+
+After running `mint install 21-DOT-DEV/swift-plugin-tuist` to install the CLI tool, anytime you want to interact with Tuist, simply run:
+
+```
+mint run 21-DOT-DEV/swift-plugin-tuist <command>
+```
+
+Example:
+
+```
+mint run 21-DOT-DEV/swift-plugin-tuist --help
+```
+
+## Configuration
+
+Below is a sample configuration for a Tuist project:
+
+```swift
+import ProjectDescription
 
 let project = Project(
     name: "MyProject",
@@ -74,74 +101,19 @@ let project = Project(
             sources: "Sources/**",
             dependencies: [
                 .target(name: "MyFramework"),
-                .package(product: "TuistPlugin")
             ]
         )
     ]
 )
 ```
 
-### Automate Project Setup
+> [!TIP]  
+> For more advanced project configurations, refer to [Tuist's guides](https://docs.tuist.io/en/guides/start/new-project).
 
-Automate your Xcode project setup using Tuist's powerful commands:
+## Community and Support
 
-```sh
-swift run tuist generate
-```
+If you encounter any issues or have questions regarding the `swift-plugin-tuist`, please open an issue on GitHub. Contributions, suggestions, and feedback are always welcome!
 
-### Custom Scripts Integration
+## Acknowledgments
 
-Integrate custom scripts within your Tuist configuration to automate various tasks:
-
-```swift
-let script = TargetScript(
-    name: "CustomScript",
-    script: """
-    echo "Running custom script..."
-    ./custom_script.sh
-    """,
-    shell: "/bin/bash"
-)
-```
-
-## Examples
-
-### Generating Xcode Project
-
-To generate your Xcode project with Tuist:
-
-```sh
-swift run tuist generate
-```
-
-### Cleaning Project
-
-Clean your project to remove generated files:
-
-```sh
-swift run tuist clean
-```
-
-### Updating Tuist
-
-Ensure you have the latest version of Tuist:
-
-```sh
-swift run tuist update
-```
-
-## Contributing
-
-We welcome contributions to enhance the Tuist Swift Plugin! Please check our [contributing guidelines](CONTRIBUTING.md) and [code of conduct](CODE_OF_CONDUCT.md) for more information.
-
-## License
-
-This plugin is released under the MIT License. See [LICENSE](LICENSE) for details.
-
-## Acknowledgements
-
-Special thanks to the [Tuist](https://github.com/tuist/tuist) community for their support and contributions.
-
----
-
-This README is structured to provide clear and comprehensive information about the Tuist Swift Plugin, highlighting its features, installation process, usage, examples, and contributing guidelines.
+Special thanks to the original [Tuist](https://github.com/tuist/tuist) project and its contributors for creating a powerful tool for managing Xcode projects.
