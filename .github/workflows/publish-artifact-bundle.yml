@@ -80,10 +80,17 @@ jobs:
     - name: Push Changes to GitHub
       run: |
           (cd ${{ inputs.binary_name }} && git commit -am "Updating ${{ inputs.binary_name }} to ${{ env.PLUGIN_VERSION }}" && git push origin)
+    - name: Get Release Notes from Binary Repo
+      run: |
+        gh release view ${{ inputs.binary_version }} \
+            -R "${{ inputs.binary_repo }}" \
+            --json body \
+            --jq '.body' > release_notes.md
     - name: Create GitHub Release
       run: |
         echo $(cd ${{ inputs.binary_name }} && git rev-parse HEAD)
         gh release create ${{ env.PLUGIN_VERSION }}    \
                         -R ${{ inputs.plugin_repo }}   \
             --target $(cd ${{ inputs.binary_name }} && git rev-parse HEAD) \
+            --notes-file release_notes.md \
             "${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_NAME }}"
