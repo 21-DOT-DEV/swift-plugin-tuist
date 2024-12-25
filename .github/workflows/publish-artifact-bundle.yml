@@ -85,8 +85,10 @@ jobs:
         gh release view ${{ inputs.binary_version }} \
             -R "${{ inputs.binary_repo }}" \
             --json body \
-            --jq '.body' > release_notes.md && \
-        sed -i '' 's/ by @[a-zA-Z0-9_-]*//g' release_notes.md
+            --jq '.body' > release_notes.md
+    - name: Remove mentions from Release Notes
+      run: |
+        sed -i -E 's/ by \[@[^\]]+\]\([^)]*\)//g' release_notes.md
     - name: Create GitHub Release
       run: |
         echo $(cd ${{ inputs.binary_name }} && git rev-parse HEAD)
