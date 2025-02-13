@@ -30,8 +30,8 @@ let package = Package(
         ),
         .binaryTarget(
             name: "tuist",
-            url: "https://github.com/21-DOT-DEV/swift-plugin-tuist/releases/download/4.41.0/tuist.artifactbundle.zip",
-            checksum: "73dc5757a1851d0b4db7d7872bcfc9c174774e930b0ef942adcca92aeaf36eae"
+            url: "https://github.com/21-DOT-DEV/swift-plugin-tuist/releases/download/4.42.0/tuist.artifactbundle.zip",
+            checksum: "59071d9ad3065f63caa58dfd99de2e1c685c09c76c9a0f93460b0961fd56478d"
         ),
     ],
     swiftLanguageVersions: [.v5]
