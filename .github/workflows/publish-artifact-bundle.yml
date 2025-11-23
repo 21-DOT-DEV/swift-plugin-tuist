@@ -35,12 +35,12 @@ on:
 jobs:
   publish:
     name: Publish Artifact Bundle
-    runs-on: macOS-13
+    runs-on: macOS-15
     env:
       PLUGIN_VERSION: ${{ inputs.binary_version }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         path: ${{ inputs.binary_name }}
     - name: Get latest binaries
