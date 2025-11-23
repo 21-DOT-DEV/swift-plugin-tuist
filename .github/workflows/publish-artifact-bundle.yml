@@ -35,7 +35,7 @@ on:
 jobs:
   publish:
     name: Publish Artifact Bundle
-    runs-on: macOS-16
+    runs-on: macOS-15
     env:
       PLUGIN_VERSION: ${{ inputs.binary_version }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
