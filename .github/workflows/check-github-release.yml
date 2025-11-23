@@ -10,7 +10,7 @@ on:
 jobs:
   check:
     name: Check GitHub Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     env:
       BINARY_NAME: tuist
       BINARY_REPO: tuist/tuist
@@ -35,25 +35,12 @@ jobs:
           BINARY_RELEASE=$(gh release list -R ${{ env.BINARY_REPO }} -L 10 --json tagName,publishedAt \
             --jq 'map(select(.tagName | test(env.SEMANTIC_VERSIONING_REGEX))) | sort_by(.publishedAt) | reverse | .[0].tagName')
           echo "BINARY_VERSION=$BINARY_RELEASE" >> $GITHUB_OUTPUT
-  debug:
-    name: Debug Outputs
-    needs: check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print outputs from check job
+      - name: Trigger artifact publish workflow
+        if: ${{ steps.one.outputs.PLUGIN_VERSION != steps.two.outputs.BINARY_VERSION }}
         run: |
-          echo "${{ needs.check.outputs.BINARY_NAME }}"
-          echo "${{ needs.check.outputs.BINARY_REPO }}"
-          echo "${{ needs.check.outputs.BINARY_VERSION }}"
-          echo "${{ github.repository }}"
-          echo "${{ needs.check.outputs.PLUGIN_VERSION }}"
-  trigger:
-    name: Trigger Artifact Publish
-    needs: check
-    uses: ./.github/workflows/publish-artifact-bundle.yml
-    with:
-      binary_name: ${{ needs.check.outputs.BINARY_NAME }}
-      binary_repo: ${{ needs.check.outputs.BINARY_REPO }}
-      binary_version: ${{ needs.check.outputs.BINARY_VERSION }}
-      plugin_repo: ${{ github.repository }}
-    if: ${{ needs.check.outputs.PLUGIN_VERSION != needs.check.outputs.BINARY_VERSION }}
+          gh workflow run .github/workflows/publish-artifact-bundle.yml \
+            --ref "$GITHUB_SHA" \
+            --field binary_name="${{ env.BINARY_NAME }}" \
+            --field binary_repo="${{ env.BINARY_REPO }}" \
+            --field binary_version="${{ steps.two.outputs.BINARY_VERSION }}" \
+            --field plugin_repo="${{ github.repository }}"

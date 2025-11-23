@@ -9,8 +9,8 @@ on:
 jobs:
   macOS:
     name: Test
-    runs-on: macOS-13
+    runs-on: macOS-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Display tuist commands in macOS
         run: swift package --disable-sandbox tuist
