@@ -14,33 +14,40 @@ jobs:
     env:
       BINARY_NAME: tuist
       BINARY_REPO: tuist/tuist
-      PLUGIN_REPO: 21-DOT-DEV/swift-plugin-tuist
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SEMANTIC_VERSIONING_REGEX: "^[v]?[0-9]+\\.[0-9]+\\.[0-9]+$"
-    outputs:
-      BINARY_NAME: ${{ env.BINARY_NAME }}
-      BINARY_REPO: ${{ env.BINARY_REPO }}
-      BINARY_VERSION: ${{ steps.two.outputs.BINARY_VERSION }}
-      PLUGIN_VERSION: ${{ steps.one.outputs.PLUGIN_VERSION }}
     steps:
-      - name: Get current plugin version
-        id: one
+      - name: Check versions and trigger publish if needed
         run: |
-          PLUGIN_RELEASE=$(gh release list -R ${{ github.repository }} -L 10 --json tagName,publishedAt \
-            --jq 'map(select(.tagName | test(env.SEMANTIC_VERSIONING_REGEX))) | sort_by(.publishedAt) | reverse | .[0].tagName')
-          echo "PLUGIN_VERSION=$PLUGIN_RELEASE" >> $GITHUB_OUTPUT
-      - name: Get current binary version
-        id: two
-        run: |
-          BINARY_RELEASE=$(gh release list -R ${{ env.BINARY_REPO }} -L 10 --json tagName,publishedAt \
-            --jq 'map(select(.tagName | test(env.SEMANTIC_VERSIONING_REGEX))) | sort_by(.publishedAt) | reverse | .[0].tagName')
-          echo "BINARY_VERSION=$BINARY_RELEASE" >> $GITHUB_OUTPUT
-      - name: Trigger artifact publish workflow
-        if: ${{ steps.one.outputs.PLUGIN_VERSION != steps.two.outputs.BINARY_VERSION }}
-        run: |
-          gh workflow run .github/workflows/publish-artifact-bundle.yml \
-            --ref "$GITHUB_SHA" \
-            --field binary_name="${{ env.BINARY_NAME }}" \
-            --field binary_repo="${{ env.BINARY_REPO }}" \
-            --field binary_version="${{ steps.two.outputs.BINARY_VERSION }}" \
-            --field plugin_repo="${{ github.repository }}"
+          # Temp files for capturing parallel command output
+          PLUGIN_FILE=$(mktemp)
+          BINARY_FILE=$(mktemp)
+          
+          # Fetch latest semver release from both repos in parallel
+          gh release list -R ${{ github.repository }} -L 10 --json tagName,publishedAt \
+            --jq 'map(select(.tagName | test(env.SEMANTIC_VERSIONING_REGEX))) | sort_by(.publishedAt) | reverse | .[0].tagName' \
+            > "$PLUGIN_FILE" &
+          plugin_pid=$!
+          
+          gh release list -R ${{ env.BINARY_REPO }} -L 10 --json tagName,publishedAt \
+            --jq 'map(select(.tagName | test(env.SEMANTIC_VERSIONING_REGEX))) | sort_by(.publishedAt) | reverse | .[0].tagName' \
+            > "$BINARY_FILE" &
+          binary_pid=$!
+          
+          # Wait for both fetches; exits non-zero if either fails
+          wait $plugin_pid
+          wait $binary_pid
+          
+          PLUGIN_VERSION=$(cat "$PLUGIN_FILE")
+          BINARY_VERSION=$(cat "$BINARY_FILE")
+          
+          # Trigger publish workflow only when upstream has a newer release
+          if [[ "$PLUGIN_VERSION" != "$BINARY_VERSION" ]]; then
+            gh workflow run .github/workflows/publish-artifact-bundle.yml \
+              -R ${{ github.repository }} \
+              --ref "$GITHUB_SHA" \
+              --field binary_name="${{ env.BINARY_NAME }}" \
+              --field binary_repo="${{ env.BINARY_REPO }}" \
+              --field binary_version="$BINARY_VERSION" \
+              --field plugin_repo="${{ github.repository }}"
+          fi
