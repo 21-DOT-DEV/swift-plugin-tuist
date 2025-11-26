@@ -45,7 +45,7 @@ jobs:
           if [[ "$PLUGIN_VERSION" != "$BINARY_VERSION" ]]; then
             gh workflow run .github/workflows/publish-artifact-bundle.yml \
               -R ${{ github.repository }} \
-              --ref "$GITHUB_SHA" \
+              --ref "$GITHUB_REF_NAME" \
               --field binary_name="${{ env.BINARY_NAME }}" \
               --field binary_repo="${{ env.BINARY_REPO }}" \
               --field binary_version="$BINARY_VERSION" \
