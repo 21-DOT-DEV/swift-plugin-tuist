@@ -24,13 +24,13 @@ jobs:
           BINARY_FILE=$(mktemp)
           
           # Fetch latest semver release from both repos in parallel
-          gh release list -R ${{ github.repository }} -L 10 --json tagName,publishedAt \
-            --jq 'map(select(.tagName | test(env.SEMANTIC_VERSIONING_REGEX))) | sort_by(.publishedAt) | reverse | .[0].tagName' \
+          gh release list -R ${{ github.repository }} -L 10 --json tagName,publishedAt | \
+            jq -r --arg re "$SEMANTIC_VERSIONING_REGEX" 'map(select(.tagName | test($re))) | sort_by(.publishedAt) | reverse | .[0].tagName' \
             > "$PLUGIN_FILE" &
           plugin_pid=$!
           
-          gh release list -R ${{ env.BINARY_REPO }} -L 10 --json tagName,publishedAt \
-            --jq 'map(select(.tagName | test(env.SEMANTIC_VERSIONING_REGEX))) | sort_by(.publishedAt) | reverse | .[0].tagName' \
+          gh release list -R ${{ env.BINARY_REPO }} -L 10 --json tagName,publishedAt | \
+            jq -r --arg re "$SEMANTIC_VERSIONING_REGEX" 'map(select(.tagName | test($re))) | sort_by(.publishedAt) | reverse | .[0].tagName' \
             > "$BINARY_FILE" &
           binary_pid=$!
           

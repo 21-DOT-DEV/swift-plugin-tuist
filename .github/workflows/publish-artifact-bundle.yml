@@ -79,6 +79,8 @@ jobs:
           sed -i '' -E "s/(https:\/\/github.com\/${{ env.ESCAPED_PLUGIN_REPO }}.git\", exact: \")([0-9]+\.[0-9]+\.[0-9]+)/\1${{ env.PLUGIN_VERSION }}/" ${{ inputs.binary_name }}/README.md
     - name: Push Changes to GitHub
       run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           (cd ${{ inputs.binary_name }} && git commit -am "Updating ${{ inputs.binary_name }} to ${{ env.PLUGIN_VERSION }}" && git push origin)
     - name: Get Release Notes from Binary Repo
       run: |
