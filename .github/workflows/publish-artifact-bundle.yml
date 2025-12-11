@@ -92,9 +92,6 @@ jobs:
             -R "${{ inputs.binary_repo }}" \
             --json body \
             --jq '.body' > release_notes.md
-    - name: Remove mentions from Release Notes
-      run: |
-        sed -i -E 's/ by \[@[^\]]+\]\([^)]*\)//g' release_notes.md
     - name: Create GitHub Release
       run: |
         COMMIT_SHA=$(git -C ${{ inputs.binary_name }} rev-parse HEAD)
