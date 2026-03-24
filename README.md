@@ -22,7 +22,7 @@ import PackageDescription
 let package = Package(
     name: "YourPackageName",
     dependencies: [
-        .package(url: "https://github.com/21-DOT-DEV/swift-plugin-tuist.git", exact: "4.163.1"),
+        .package(url: "https://github.com/21-DOT-DEV/swift-plugin-tuist.git", exact: "4.164.1"),
     ],
     targets: [
         .executableTarget(name: "YourTargetName")
